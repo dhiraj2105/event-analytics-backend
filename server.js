@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import chalk from "chalk";
+import cors from "cors";
 
 import eventRoutes from './routes/event.routes.js'
 import analyticsRoutes from './routes/analytics.routes.js'
@@ -10,6 +11,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
