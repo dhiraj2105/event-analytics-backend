@@ -1,0 +1,61 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Analytics Event Demo</title>
+</head>
+
+<body>
+    <h1>Welcome to My Web App</h1>
+    <button id="click-me">Click Me</button>
+    <button id="get-location">Share Location</button>
+
+    <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service.worker.js')
+                .then(reg => {
+                    console.log('✅ Service Worker registered:', reg.scope);
+
+                    // Send a "view" event on page load
+                    reg.active?.postMessage({
+                        type: 'view',
+                        payload: {
+                            url: window.location.href,
+                            title: document.title
+                        }
+                    });
+
+                    // Setup click event
+                    document.getElementById('click-me').addEventListener('click', () => {
+                        reg.active?.postMessage({
+                            type: 'click',
+                            payload: {
+                                element_id: 'click-me',
+                                text: 'Click Me',
+                                xpath: '#click-me'
+                            }
+                        });
+                    });
+
+                    // Setup location event
+                    document.getElementById('get-location').addEventListener('click', () => {
+                        navigator.geolocation.getCurrentPosition(pos => {
+                            const { latitude, longitude, accuracy } = pos.coords;
+                            reg.active?.postMessage({
+                                type: 'location',
+                                payload: { latitude, longitude, accuracy }
+                            });
+                        }, err => console.error('❌ Geolocation error:', err));
+                    });
+
+                }).catch(err => {
+                    console.error('❌ SW registration failed:', err);
+                });
+        }
+    </script>
+</body>
+
+</html>
